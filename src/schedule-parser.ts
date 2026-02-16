@@ -3,7 +3,7 @@ import { Placeholder, ScheduleBlock } from './types';
 export function findPlaceholders(content: string, keyword: string): Placeholder[] {
 	const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 	const pattern = new RegExp(
-		`\\[(today'?s?\\s+${escapedKeyword}|tomorrow'?s?\\s+${escapedKeyword}|(\\d{4}-\\d{2}-\\d{2})\\s+${escapedKeyword})\\]`,
+		`\\[(today'?s?\\s+${escapedKeyword}|tomorrow'?s?\\s+${escapedKeyword}|(\\d{4}-\\d{2}-\\d{2})\\s+${escapedKeyword}|${escapedKeyword})\\]`,
 		'gi'
 	);
 
@@ -16,14 +16,16 @@ export function findPlaceholders(content: string, keyword: string): Placeholder[
 		const explicitDateCapture = regexMatch[2] ?? null;
 
 		const lowerInner = inner.toLowerCase();
-		let dateType: 'today' | 'tomorrow' | 'explicit';
+		let dateType: 'filename' | 'today' | 'tomorrow' | 'explicit';
 
 		if (lowerInner.startsWith('today')) {
 			dateType = 'today';
 		} else if (lowerInner.startsWith('tomorrow')) {
 			dateType = 'tomorrow';
-		} else {
+		} else if (explicitDateCapture) {
 			dateType = 'explicit';
+		} else {
+			dateType = 'filename';
 		}
 
 		results.push({
@@ -79,11 +81,23 @@ export function findScheduleBlocks(content: string): ScheduleBlock[] {
 }
 
 export function parseDateFromFilename(filename: string, format: string): Date | null {
+	// Replace all tokens with placeholders first
 	let regexStr = format
-		.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-		.replace('YYYY', '(\\d{4})')
-		.replace('MM', '(\\d{2})')
-		.replace('DD', '(\\d{2})');
+		.replace('YYYY', '\x01')
+		.replace('MM', '\x02')
+		.replace('DD', '\x03')
+		.replace(/dddd/g, '\x04')
+		.replace(/ddd/g, '\x04');
+
+	// Escape remaining literal characters
+	regexStr = regexStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+	// Restore tokens as regex patterns
+	regexStr = regexStr
+		.replace('\x01', '(\\d{4})')
+		.replace('\x02', '(\\d{2})')
+		.replace('\x03', '(\\d{2})')
+		.replace(/\x04/g, '.+?');
 
 	const pattern = new RegExp(regexStr);
 	const match = pattern.exec(filename);
@@ -128,6 +142,13 @@ export function parseDateFromFilename(filename: string, format: string): Date | 
 
 export function resolveDate(placeholder: Placeholder, filenameDate: Date | null): Date {
 	switch (placeholder.dateType) {
+		case 'filename': {
+			if (filenameDate === null) {
+				throw new Error('Could not extract a date from the note filename.');
+			}
+			return new Date(filenameDate);
+		}
+
 		case 'today': {
 			if (filenameDate !== null) {
 				return new Date(filenameDate);

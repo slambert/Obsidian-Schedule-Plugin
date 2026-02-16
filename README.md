@@ -69,6 +69,7 @@ You can also host `docs/callback.html` anywhere that serves static files over HT
 
 Write any of these in a note (case-insensitive):
 
+- `[schedule]` — Extracts the date from the note's filename
 - `[today's schedule]` — Uses the date from the note's filename
 - `[tomorrow's schedule]` — One day after the note's filename date
 - `[2026-02-16 schedule]` — Uses the specified date
