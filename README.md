@@ -7,9 +7,10 @@ Write a placeholder like `[today's schedule]` in any note, run the **Insert sche
 ## Features
 
 - **Placeholder-based insertion** — Write `[today's schedule]`, `[tomorrow's schedule]`, or `[2026-02-16 schedule]` in a note, then run a command to replace it with a formatted events table.
-- **Refreshable tables** — Re-fetch and update previously inserted tables with the **Refresh schedule** command.
+- **Refreshable tables** — Re-fetch and update previously inserted tables with the **Refresh schedule** command, or click the inline refresh button in Live Preview.
 - **Multiple calendars** — Select which Google calendars to include in settings.
 - **Auto-insert** — Optionally insert the schedule automatically when a new daily note is created.
+- **Auto-refresh on file open** — Optionally refresh existing schedule tables whenever you open a note.
 - **Configurable** — 12/24-hour time format, custom placeholder keyword, date format in filenames, all-day event toggle.
 
 ## Example output
@@ -21,10 +22,9 @@ Write a placeholder like `[today's schedule]` in any note, run the **Insert sche
 | **All Day** | **Company Offsite** |
 | 9:00 AM - 9:30 AM | Standup |
 | 1:30 PM - 2:30 PM | Client Call |
-%%schedule-end%%
 ```
 
-The `%%` comment markers are invisible in reading view but allow the refresh command to find and update the table later.
+The `%%schedule-start%%` marker is hidden in Live Preview and replaced with a small refresh button (↻) you can click to update the table.
 
 ## Setup
 
@@ -87,6 +87,7 @@ The keyword "schedule" is configurable in settings.
 | Placeholder keyword | `schedule` | The trigger word inside brackets |
 | Date format in filename | `YYYY-MM-DD` | How to extract the date from note filenames |
 | Auto-insert on daily note creation | Off | Automatically run Insert schedule when a new daily note is opened |
+| Auto-refresh on file open | Off | Automatically refresh existing schedule tables when opening a file |
 
 ## Installation
 
