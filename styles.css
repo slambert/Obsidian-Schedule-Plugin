@@ -2,3 +2,20 @@
 	opacity: 0.5;
 	font-size: 0.85em;
 }
+
+.schedule-refresh-btn {
+	cursor: pointer;
+	opacity: 0.4;
+	display: inline-block;
+	vertical-align: middle;
+	transition: opacity 0.15s ease;
+}
+
+.schedule-refresh-btn:hover {
+	opacity: 1;
+}
+
+.schedule-refresh-btn svg {
+	width: 16px;
+	height: 16px;
+}

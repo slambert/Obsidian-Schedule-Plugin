@@ -1,19 +1,28 @@
-import { EditorState, RangeSetBuilder, StateField, Transaction } from '@codemirror/state';
+import { EditorState, Facet, RangeSetBuilder, StateField, Transaction } from '@codemirror/state';
 import { Decoration, DecorationSet, EditorView, WidgetType } from '@codemirror/view';
+import { setIcon } from 'obsidian';
 
 const SCHEDULE_START_RE = /^%%schedule-start \d{4}-\d{2}-\d{2}%%$/;
 
+export const refreshCallbackFacet = Facet.define<() => void, () => void>({
+	combine: (values) => values[0] ?? (() => {}),
+});
+
 class ScheduleMarkerWidget extends WidgetType {
-	toDOM(): HTMLElement {
+	toDOM(view: EditorView): HTMLElement {
 		const span = document.createElement('span');
-		span.className = 'schedule-marker';
+		span.className = 'schedule-refresh-btn';
+		setIcon(span, 'refresh-cw');
+		span.addEventListener('click', () => {
+			view.state.facet(refreshCallbackFacet)();
+		});
 		return span;
 	}
-}
 
-const replaceDecoration = Decoration.replace({
-	widget: new ScheduleMarkerWidget(),
-});
+	eq(): boolean {
+		return true;
+	}
+}
 
 function buildDecorations(state: EditorState): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
@@ -32,6 +41,9 @@ function buildDecorations(state: EditorState): DecorationSet {
 					end = nextLine.to;
 				}
 			}
+			const replaceDecoration = Decoration.replace({
+				widget: new ScheduleMarkerWidget(),
+			});
 			builder.add(line.from, end, replaceDecoration);
 		}
 	}
