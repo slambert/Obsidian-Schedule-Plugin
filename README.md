@@ -45,9 +45,10 @@ You can also host `docs/callback.html` anywhere that serves static files over HT
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
 2. Create a new project (or select an existing one).
 3. Enable the **Google Calendar API**.
-4. Go to **Credentials** and create an **OAuth 2.0 Client ID** (Web application type).
-5. Add your callback page URL (from step 1) as an **authorized redirect URI**.
-6. Copy the **Client ID** and **Client Secret**.
+4. Go to **APIs & Services → OAuth consent screen**. Set the publishing status to **Testing**, then under **Test users**, add your Google email address.
+5. Go to **Credentials** and create an **OAuth 2.0 Client ID** (Web application type). Create a consent screen when prompted.
+6. Add your callback page URL (from step 1) as an **authorized redirect URI**.
+7. Copy the **Client ID** and **Client Secret**.
 
 ### 3. Configure the plugin
 
