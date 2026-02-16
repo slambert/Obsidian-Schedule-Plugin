@@ -129,6 +129,16 @@ export class ScheduleSettingTab extends PluginSettingTab {
 					this.plugin.settings.autoInsertOnDailyNote = value;
 					await this.plugin.saveSettings();
 				}));
+
+		new Setting(containerEl)
+			.setName('Auto-refresh schedules on file open')
+			.setDesc('Automatically refresh existing schedule tables when opening a file')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.autoRefreshOnFileOpen)
+				.onChange(async (value) => {
+					this.plugin.settings.autoRefreshOnFileOpen = value;
+					await this.plugin.saveSettings();
+				}));
 	}
 
 	private async loadCalendars(containerEl: HTMLElement): Promise<void> {

@@ -5,7 +5,7 @@ import { fetchEvents } from './google-calendar';
 import { findPlaceholders, findScheduleBlocks, parseDateFromFilename, resolveDate } from './schedule-parser';
 import { buildScheduleTable } from './table-builder';
 import { ScheduleSettingTab } from './settings';
-import { scheduleMarkerField } from './editor-extension';
+import { scheduleMarkerField, refreshCallbackFacet } from './editor-extension';
 
 export default class SchedulePlugin extends Plugin {
 	settings: SchedulePluginSettings;
@@ -50,15 +50,33 @@ export default class SchedulePlugin extends Plugin {
 		});
 
 		this.addSettingTab(new ScheduleSettingTab(this.app, this));
-		this.registerEditorExtension(scheduleMarkerField);
+		this.registerEditorExtension([
+			refreshCallbackFacet.of(() => this.refreshSchedule()),
+			scheduleMarkerField,
+		]);
 
 		this.registerEvent(this.app.workspace.on('file-open', async (file) => {
-			if (!this.settings.autoInsertOnDailyNote || !file) return;
-			if (Date.now() - file.stat.ctime > 10000) return;
+			if (!file) return;
+
 			const content = await this.app.vault.read(file);
-			const placeholders = findPlaceholders(content, this.settings.placeholderKeyword);
-			if (placeholders.length > 0) {
-				await this.insertSchedule();
+
+			// Auto-insert on newly created daily notes
+			if (this.settings.autoInsertOnDailyNote && Date.now() - file.stat.ctime < 10000) {
+				const placeholders = findPlaceholders(content, this.settings.placeholderKeyword);
+				if (placeholders.length > 0) {
+					await this.insertSchedule();
+					return;
+				}
+			}
+
+			// Auto-refresh existing schedule tables
+			if (this.settings.autoRefreshOnFileOpen
+				&& this.auth.isAuthenticated()
+				&& this.settings.selectedCalendarIds.length > 0) {
+				const blocks = findScheduleBlocks(content);
+				if (blocks.length > 0) {
+					await this.refreshSchedule();
+				}
 			}
 		}));
 	}

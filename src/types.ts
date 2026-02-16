@@ -11,6 +11,7 @@ export interface SchedulePluginSettings {
 	timeFormat: '12h' | '24h';
 	dateFormatInFilename: string;
 	autoInsertOnDailyNote: boolean;
+	autoRefreshOnFileOpen: boolean;
 }
 
 export const DEFAULT_SETTINGS: SchedulePluginSettings = {
@@ -26,6 +27,7 @@ export const DEFAULT_SETTINGS: SchedulePluginSettings = {
 	timeFormat: '12h',
 	dateFormatInFilename: 'YYYY-MM-DD',
 	autoInsertOnDailyNote: false,
+	autoRefreshOnFileOpen: false,
 };
 
 export interface CalendarEvent {
@@ -44,7 +46,7 @@ export interface CalendarInfo {
 export interface Placeholder {
 	match: string;
 	fullMatch: string;
-	dateType: 'today' | 'tomorrow' | 'explicit';
+	dateType: 'filename' | 'today' | 'tomorrow' | 'explicit';
 	explicitDate: string | null;
 	startIndex: number;
 	endIndex: number;
