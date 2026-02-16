@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-schedule-plugin",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Fetch Google Calendar events and insert them as markdown tables into your notes.",
 	"main": "main.js",
 	"type": "module",
