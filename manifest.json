@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "obsidian-schedule-plugin",
+	"name": "Schedule",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"minAppVersion": "1.4.0",
+	"description": "Fetch Google Calendar events and insert them as markdown tables into your notes.",
+	"author": "",
+	"authorUrl": "",
 	"isDesktopOnly": false
 }

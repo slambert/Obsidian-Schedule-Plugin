@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Plugin — OAuth Callback</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #1e1e1e; color: #ccc; }
+        .container { text-align: center; padding: 2rem; }
+        .error { color: #e55; }
+    </style>
+</head>
+<body>
+    <div class="container" id="message">Redirecting to Obsidian...</div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const error = params.get('error');
+        const el = document.getElementById('message');
+
+        if (error) {
+            el.className = 'container error';
+            el.textContent = 'Authorization failed: ' + error;
+        } else if (code) {
+            window.location.href = 'obsidian://google-calendar-schedule-auth?code=' + encodeURIComponent(code);
+        } else {
+            el.className = 'container error';
+            el.textContent = 'No authorization code received.';
+        }
+    </script>
+</body>
+</html>

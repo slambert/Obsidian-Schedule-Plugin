@@ -1,90 +1,108 @@
-# Obsidian Sample Plugin
+# Schedule — Obsidian Plugin
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+Fetch events from Google Calendar and insert them as markdown tables into your notes.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+Write a placeholder like `[today's schedule]` in any note, run the **Insert schedule** command, and the plugin replaces it with a table of your events for that day. Works on both desktop and mobile.
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+## Features
 
-## First time developing plugins?
+- **Placeholder-based insertion** — Write `[today's schedule]`, `[tomorrow's schedule]`, or `[2026-02-16 schedule]` in a note, then run a command to replace it with a formatted events table.
+- **Refreshable tables** — Re-fetch and update previously inserted tables with the **Refresh schedule** command.
+- **Multiple calendars** — Select which Google calendars to include in settings.
+- **Auto-insert** — Optionally insert the schedule automatically when a new daily note is created.
+- **Configurable** — 12/24-hour time format, custom placeholder keyword, date format in filenames, all-day event toggle.
 
-Quick starting guide for new plugin devs:
+## Example output
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
-
-## Releasing new releases
-
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
-
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
-
-## Adding your plugin to the community plugin list
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+```markdown
+%%schedule-start 2026-02-16%%
+| Time | Event |
+| --: | :-- |
+| **All Day** | **Company Offsite** |
+| 9:00 AM - 9:30 AM | Standup |
+| 1:30 PM - 2:30 PM | Client Call |
+%%schedule-end%%
 ```
 
-If you have multiple URLs, you can also do:
+The `%%` comment markers are invisible in reading view but allow the refresh command to find and update the table later.
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+## Setup
+
+### 1. Host the callback page
+
+The plugin includes a small callback page (`docs/callback.html`) that bridges Google's OAuth redirect to Obsidian. You need to host it at a public HTTPS URL.
+
+**Using GitHub Pages (easiest):**
+1. Push this repo to GitHub.
+2. Go to **Settings → Pages** in your repo.
+3. Set the source to the `docs/` folder on your main branch.
+4. Your callback URL will be `https://<username>.github.io/<repo-name>/callback.html`.
+
+You can also host `docs/callback.html` anywhere that serves static files over HTTPS.
+
+### 2. Create Google OAuth credentials
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project (or select an existing one).
+3. Enable the **Google Calendar API**.
+4. Go to **Credentials** and create an **OAuth 2.0 Client ID** (Web application type).
+5. Add your callback page URL (from step 1) as an **authorized redirect URI**.
+6. Copy the **Client ID** and **Client Secret**.
+
+### 3. Configure the plugin
+
+1. Open **Settings → Community plugins → Schedule**.
+2. Enter your **Client ID**, **Client Secret**, and **Redirect URI** (the callback page URL from step 1).
+3. Click **Connect** to authorize with Google.
+4. After connecting, select which calendars to include.
+
+## Commands
+
+| Command | Description |
+|---|---|
+| **Insert schedule** | Scans the current note for placeholders and replaces them with event tables |
+| **Refresh schedule** | Re-fetches events for all previously inserted schedule tables in the current note |
+| **Connect Google Calendar** | Opens the Google OAuth consent screen |
+
+## Placeholders
+
+Write any of these in a note (case-insensitive):
+
+- `[today's schedule]` — Uses the date from the note's filename
+- `[tomorrow's schedule]` — One day after the note's filename date
+- `[2026-02-16 schedule]` — Uses the specified date
+
+The keyword "schedule" is configurable in settings.
+
+## Settings
+
+| Setting | Default | Description |
+|---|---|---|
+| Client ID / Client Secret | — | Your Google OAuth credentials |
+| Calendars | All selected | Which calendars to include |
+| Include all-day events | On | Show all-day events at the top of the table |
+| Time format | 12-hour | 12-hour or 24-hour time display |
+| Placeholder keyword | `schedule` | The trigger word inside brackets |
+| Date format in filename | `YYYY-MM-DD` | How to extract the date from note filenames |
+| Auto-insert on daily note creation | Off | Automatically run Insert schedule when a new daily note is opened |
+
+## Installation
+
+### From community plugins
+
+Search for "Schedule" in **Settings → Community plugins → Browse**.
+
+### Manual
+
+1. Download `main.js`, `manifest.json`, and `styles.css` from the latest release.
+2. Create a folder at `<vault>/.obsidian/plugins/obsidian-schedule-plugin/`.
+3. Copy the downloaded files into that folder.
+4. Reload Obsidian and enable the plugin in **Settings → Community plugins**.
+
+## Development
+
+```bash
+npm install
+npm run dev    # watch mode
+npm run build  # production build
 ```
-
-## API Documentation
-
-See https://docs.obsidian.md
