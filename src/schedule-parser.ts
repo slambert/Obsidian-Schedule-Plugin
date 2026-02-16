@@ -40,20 +40,38 @@ export function findPlaceholders(content: string, keyword: string): Placeholder[
 }
 
 export function findScheduleBlocks(content: string): ScheduleBlock[] {
-	const pattern = /%%schedule-start (\d{4}-\d{2}-\d{2})%%([\s\S]*?)%%schedule-end%%/g;
-
+	const startPattern = /^%%schedule-start (\d{4}-\d{2}-\d{2})%%$/gm;
 	const results: ScheduleBlock[] = [];
 	let regexMatch: RegExpExecArray | null;
 
-	while ((regexMatch = pattern.exec(content)) !== null) {
-		const fullMatch = regexMatch[0]!;
+	while ((regexMatch = startPattern.exec(content)) !== null) {
 		const date = regexMatch[1] ?? '';
+		const startIndex = regexMatch.index;
+
+		// Scan forward past blank lines and table rows (lines starting with |)
+		let endIndex = regexMatch.index + regexMatch[0]!.length;
+		const remaining = content.slice(endIndex);
+		const lines = remaining.split('\n');
+
+		for (const line of lines) {
+			const trimmed = line.trim();
+			if (trimmed === '' || trimmed.startsWith('|')) {
+				endIndex += line.length + 1; // +1 for the newline
+			} else {
+				break;
+			}
+		}
+
+		// Trim trailing newline
+		if (endIndex > 0 && content[endIndex - 1] === '\n') {
+			endIndex--;
+		}
 
 		results.push({
 			date,
-			startIndex: regexMatch.index,
-			endIndex: regexMatch.index + fullMatch.length,
-			fullMatch,
+			startIndex,
+			endIndex,
+			fullMatch: content.slice(startIndex, endIndex),
 		});
 	}
 

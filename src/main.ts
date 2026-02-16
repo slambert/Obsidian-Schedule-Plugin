@@ -5,6 +5,7 @@ import { fetchEvents } from './google-calendar';
 import { findPlaceholders, findScheduleBlocks, parseDateFromFilename, resolveDate } from './schedule-parser';
 import { buildScheduleTable } from './table-builder';
 import { ScheduleSettingTab } from './settings';
+import { scheduleMarkerField } from './editor-extension';
 
 export default class SchedulePlugin extends Plugin {
 	settings: SchedulePluginSettings;
@@ -49,6 +50,7 @@ export default class SchedulePlugin extends Plugin {
 		});
 
 		this.addSettingTab(new ScheduleSettingTab(this.app, this));
+		this.registerEditorExtension(scheduleMarkerField);
 
 		this.registerEvent(this.app.workspace.on('file-open', async (file) => {
 			if (!this.settings.autoInsertOnDailyNote || !file) return;

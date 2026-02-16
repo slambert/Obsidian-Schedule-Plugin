@@ -62,5 +62,5 @@ export function buildScheduleTable(
 		...rows,
 	];
 
-	return `%%schedule-start ${dateStr}%%\n${tableLines.join('\n')}\n%%schedule-end%%`;
+	return `%%schedule-start ${dateStr}%%\n\n${tableLines.join('\n')}`;
 }
